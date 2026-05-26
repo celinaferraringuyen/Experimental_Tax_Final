@@ -191,7 +191,7 @@ let S = {
   corr:{trust:null,manage:null,direct:null},
   society:null, societySource:null, corrMean:null, corrMedian:null,
   normVal:Math.random()<0.5?'good':'bad',
-  friendTreat:Math.random()<0.5,   // between-subjects: sees friend story
+  friendTreat:Math.random()<0.5,   // between-subjects: sees counter-friend story
   eIdx:0, savings:8000, happiness:72,
   r1Pct:100, r2Pct:100, r3Pct:100, r4Pct:100,
   r1:null, r2:null, r3:null, r4:null,
@@ -372,10 +372,12 @@ const PRESC={
     text:'Community surveys show that many people consider underreporting income to be understandable when public funds are perceived as poorly managed and public institutions are seen as ineffective.'}
 };
 const FRIEND={
+  // Good norm: friend did the opposite -> evaded
   good:{lbl:"A conversation with your best friend",icon:'ti-user-heart',
-    text:"Shortly after filing your return, you catch up with your best friend. They tell you they declared their full income this year — every cent. \"It felt like the right thing to do,\" they said. \"If public services are working and funds are being used responsibly, I should contribute my share.\""},
+    text:"Shortly after filing your return, you catch up with your best friend. They mention, almost casually, that they underreported some income this year. \"Not much,\" they said. \"But honestly, the way the government spends it, I just couldn't justify paying every cent.\" You didn't expect that from them."},
+  // Bad norm: friend did the opposite -> fully compliant
   bad:{lbl:"A conversation with your best friend",icon:'ti-user-heart',
-    text:"Shortly after filing your return, you catch up with your best friend. They mention, almost casually, that they underreported some income this year. \"Not much,\" they said. \"But when funds are mismanaged and institutions feel ineffective, I understand why people hold something back.\""}
+    text:"Shortly after filing your return, you catch up with your best friend. They tell you they declared their full income this year, every cent. \"I know it's not what most people do,\" they said. \"But I just couldn't bring myself to lie on an official document.\" You didn't expect that from them."}
 };
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -388,7 +390,7 @@ function buildData(){
       correctedMean:S.corrMean,correctedMedian:S.corrMedian,
       assignmentBasis:'median of corrected scores (threshold=3)',
       assignmentMethod:S.societySource},
-    treatments:{society:S.society,norm:S.normVal,friendStoryTreatment:S.friendTreat},
+    treatments:{society:S.society,norm:S.normVal,friendCounterExample:S.friendTreat},
     decisions:{r1_baseline:S.r1,r2_afterDescriptive:S.r2,r3_afterPrescriptive:S.r3,
       r4_afterFriendStory:S.r4,
       delta_r2_minus_r1:S.r2!==null?S.r2-S.r1:null,
@@ -669,7 +671,7 @@ function screenHTML(){
     ${prevBadge('Decision 2 (after descriptive norm)',S.r2)}
     ${prevBadge('Decision 3 (after prescriptive norm)',S.r3)}
     <div class="norm-box" style="background:var(--bg);">
-      <div class="norm-lbl"><i class="ti ti-user-heart" aria-hidden="true" style="margin-right:4px;"></i>A personal perspective</div>
+      <div class="norm-lbl"><i class="ti ti-user-heart" aria-hidden="true" style="margin-right:4px;"></i>Your best friend's decision (counter-example)</div>
       <p class="prose">${FRIEND[S.normVal].text}</p>
     </div>
     ${taxBlock('r4','r4Pct','Submit final declaration')}`;
@@ -848,7 +850,7 @@ function expPanelHTML(){
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <span style="font-size:11px;color:var(--muted);">Norm:</span>
         <div class="exp-btns">${['good','bad'].map(v=>`<button class="${S.normVal===v?'sel':''}" onclick="S.normVal='${v}';render();">${v}</button>`).join('')}</div>
-        <span style="font-size:11px;color:var(--muted);">Friend:</span>
+        <span style="font-size:11px;color:var(--muted);">Friend counter-example:</span>
         <div class="exp-btns">${[true,false].map(v=>`<button class="${S.friendTreat===v?'sel':''}" onclick="S.friendTreat=${v};render();">${v?'yes':'no'}</button>`).join('')}</div>
       </div>
     </div>
@@ -858,14 +860,14 @@ function expPanelHTML(){
         <span class="exp-key">R1</span><span>Baseline</span><span style="font-weight:600;">${S.r1}%</span><span>—</span>
         <span class="exp-key">R2</span><span>Descriptive norm</span><span style="font-weight:600;">${S.r2!==null?S.r2+'%':'—'}</span><span style="color:${S.r2>S.r1?'var(--ok)':S.r2<S.r1?'var(--danger)':'var(--faint)'};font-weight:600;">${S.r2!==null?`(${S.r2>S.r1?'+':''}${S.r2-S.r1}pp)`:'—'}</span>
         <span class="exp-key">R3</span><span>Prescriptive norm</span><span style="font-weight:600;">${S.r3!==null?S.r3+'%':'—'}</span><span style="color:${S.r3!==null&&S.r3>S.r2?'var(--ok)':S.r3!==null&&S.r3<S.r2?'var(--danger)':'var(--faint)'};font-weight:600;">${S.r3!==null&&S.r2!==null?`(${S.r3>S.r2?'+':''}${S.r3-S.r2}pp)`:'—'}</span>
-        ${S.friendTreat?`<span class="exp-key">R4</span><span>Friend story</span><span style="font-weight:600;">${S.r4!==null?S.r4+'%':'—'}</span><span style="color:${S.r4!==null&&S.r4>S.r3?'var(--ok)':S.r4!==null&&S.r4<S.r3?'var(--danger)':'var(--faint)'};font-weight:600;">${S.r4!==null&&S.r3!==null?'('+(S.r4>S.r3?'+':'')+(S.r4-S.r3)+'pp)':'—'}</span>`:''}
+        ${S.friendTreat?`<span class="exp-key">R4</span><span>Friend counter-example</span><span style="font-weight:600;">${S.r4!==null?S.r4+'%':'—'}</span><span style="color:${S.r4!==null&&S.r4>S.r3?'var(--ok)':S.r4!==null&&S.r4<S.r3?'var(--danger)':'var(--faint)'};font-weight:600;">${S.r4!==null&&S.r3!==null?'('+(S.r4>S.r3?'+':'')+(S.r4-S.r3)+'pp)':'—'}</span>`:''}
       </div>
       ${S.auditResult?`<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:5px;border-top:1px solid var(--border);font-size:12px;">
         <span style="color:var(--muted);">Audit outcome</span>
         <span style="font-weight:600;color:${S.auditResult.audited?'var(--danger)':'var(--ok)'};">${S.auditResult.audited?'Audited · fine '+fmt(S.auditResult.fine):'Not audited'}</span>
       </div>`:''}
     </div>`:''}
-    <div class="exp-note">INCOME=${fmt(INCOME)} · TAX=${(TAX_RATE*100).toFixed(0)}% · AUDIT=${(AUDIT_P*100).toFixed(0)}% · Society: survey-derived · Norm+Friend: randomised</div>
+    <div class="exp-note">INCOME=${fmt(INCOME)} · TAX=${(TAX_RATE*100).toFixed(0)}% · AUDIT=${(AUDIT_P*100).toFixed(0)}% · Society: survey-derived · Norm+Friend counter-example: randomised</div>
   </div>`;
   if(!RESEARCHER_MODE) return '';
   return `<div><button class="exp-toggle" onclick="S.showPanel=!S.showPanel;render();"><i class="ti ti-settings" aria-hidden="true" style="margin-right:4px;"></i>Experimenter panel</button>${inner}</div>`;
