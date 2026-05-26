@@ -191,7 +191,7 @@ let S = {
   corr:{trust:null,manage:null,direct:null},
   society:null, societySource:null, corrMean:null, corrMedian:null,
   normVal:Math.random()<0.5?'good':'bad',
-  friendTreat:Math.random()<0.5,   // between-subjects: sees counter-friend story
+  friendTreat:true,   // all participants see the friend counter-example story
   eIdx:0, savings:8000, happiness:72,
   r1Pct:100, r2Pct:100, r3Pct:100, r4Pct:100,
   r1:null, r2:null, r3:null, r4:null,
@@ -591,8 +591,8 @@ function screenHTML(){
   // STAGE INTRO ──────────────────────────────────────────────────────────────
   if(p==='stage_intro') return `
     <div style="padding:.25rem 0;">
-      <div class="stage-pill">Stage 1 of 3 — Decision rounds</div>
-      <p class="story" style="margin-bottom:1.25rem;border-left:3px solid var(--border);padding-left:1rem;font-style:italic;">This study involves 4 stages. At the beginning of each stage, you will receive all the information you need to make your decisions. Additional context about the study will be provided as you progress. There is no right or wrong answer — please answer honestly.</p>
+      <div class="stage-pill">Decision rounds</div>
+      <p class="story" style="margin-bottom:1.25rem;border-left:3px solid var(--border);padding-left:1rem;font-style:italic;">You will receive information as you progress through the study. At each point, you will have everything you need to make your decision. There is no right or wrong answer — please answer honestly.</p>
       <h3>You will play as ${S.fictitiousName}</h3>
       <p class="prose" style="margin-bottom:1rem;">${S.fictitiousName} is a 27-year-old graphic designer living in <strong>${S.city}</strong>, ${S.countryOfOrigin}. You will face a series of everyday choices and four income declaration decisions. Each declaration is recorded.</p>
       <div style="background:var(--info-bg);border:1px solid var(--info-bd);border-radius:10px;padding:.875rem 1rem;margin-bottom:1rem;">
@@ -613,16 +613,16 @@ function screenHTML(){
 
   // R1 ───────────────────────────────────────────────────────────────────────
   if(p==='r1') return `
-    ${tag('ti-receipt','Income declaration · Decision 1 of 3')}
+    ${tag('ti-receipt','Income declaration')}
     <h3 style="margin-bottom:.5rem;">Time to file your annual return</h3>
     <p class="prose" style="margin-bottom:.5rem;">In ${S.countryOfOrigin||'your country'}, ${R1_CTX[S.society]}</p><p class="prose" style="margin-bottom:1rem;">It is March and your annual income declaration is due. How much of your income will you declare?</p>
-    ${taxBlock('r1','r1Pct','Submit declaration — decision 1 of 3')}`;
+    ${taxBlock('r1','r1Pct','Submit declaration')}`;
 
   // DESC NORM ────────────────────────────────────────────────────────────────
   if(p==='desc_norm'){ const d=DESC[S.normVal]; return `
-    <div class="stage-pill">Stage 2 of 3 — New information</div>
+    <div class="stage-pill">New information</div>
     <button onclick="go('r1')" style="font-size:12px;color:var(--muted);padding:.3rem .5rem;border:none;background:transparent;margin-bottom:.75rem;cursor:pointer;"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to beginning of this decision stage</button>
-    ${tag('ti-news','New information · before decision 2')}
+    ${tag('ti-news','New information')}
     <p class="story" style="margin-bottom:1rem;">While preparing your return, you come across a recent survey about income reporting behaviour in ${S.city}:</p>
     ${normBox(d)}
     <p class="prose" style="margin-bottom:1.375rem;">You may now revise your declaration, or keep it the same.</p>
@@ -631,29 +631,29 @@ function screenHTML(){
   // R2 ───────────────────────────────────────────────────────────────────────
   if(p==='r2') return `
     <button onclick="go('desc_norm')" style="font-size:12px;color:var(--muted);padding:.3rem .5rem;border:none;background:transparent;margin-bottom:.75rem;cursor:pointer;"><i class="ti ti-arrow-left" aria-hidden="true"></i> Review norm information</button>
-    ${tag('ti-receipt','Income declaration · Decision 2 of 3')}
-    ${prevBadge('Decision 1 (baseline)',S.r1)}
+    ${tag('ti-receipt','Income declaration')}
+    ${prevBadge('Previous declaration',S.r1)}
     ${normBox(DESC[S.normVal])}
-    ${taxBlock('r2','r2Pct','Submit declaration — decision 2 of 3')}`;
+    ${taxBlock('r2','r2Pct','Submit declaration')}`;
 
   // PRESC NORM ───────────────────────────────────────────────────────────────
   if(p==='presc_norm'){ const pr=PRESC[S.normVal]; return `
-    <div class="stage-pill">Stage 3 of 3 — Final information</div>
+    <div class="stage-pill">New information</div>
     <button onclick="go('r2')" style="font-size:12px;color:var(--muted);padding:.3rem .5rem;border:none;background:transparent;margin-bottom:.75rem;cursor:pointer;"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to beginning of this decision stage</button>
-    ${tag('ti-message-circle','New information · before decision 3')}
+    ${tag('ti-message-circle','New information')}
     <p class="story" style="margin-bottom:1rem;">You also come across a community attitudes survey conducted in ${S.city}:</p>
     ${normBox(pr)}
-    <p class="prose" style="margin-bottom:1.375rem;">You may revise your declaration one final time, or keep it as it is.</p>
-    <button class="btn-primary" onclick="go('r3')">Make final declaration <i class="ti ti-arrow-right" aria-hidden="true"></i></button>`;}
+    <p class="prose" style="margin-bottom:1.375rem;">You may revise your declaration, or keep it as it is.</p>
+    <button class="btn-primary" onclick="go('r3')">Revise declaration <i class="ti ti-arrow-right" aria-hidden="true"></i></button>`;}
 
   // R3 ───────────────────────────────────────────────────────────────────────
   if(p==='r3') return `
     <button onclick="go('presc_norm')" style="font-size:12px;color:var(--muted);padding:.3rem .5rem;border:none;background:transparent;margin-bottom:.75rem;cursor:pointer;"><i class="ti ti-arrow-left" aria-hidden="true"></i> Review norm information</button>
-    ${tag('ti-receipt','Income declaration · Decision 3 of 3')}
-    ${prevBadge('Decision 1 (baseline)',S.r1)}
-    ${prevBadge('Decision 2 (after descriptive norm)',S.r2)}
+    ${tag('ti-receipt','Income declaration')}
+    ${prevBadge('Earlier declaration',S.r1)}
+    ${prevBadge('Previous declaration',S.r2)}
     ${normBox(DESC[S.normVal])}${normBox(PRESC[S.normVal])}
-    ${taxBlock('r3','r3Pct',S.friendTreat?'Submit declaration — decision 3 of 3':'Submit final declaration — decision 3 of 3')}`;
+    ${taxBlock('r3','r3Pct','Submit declaration')}`;
 
   // FRIEND STORY ─────────────────────────────────────────────────────────────
   if(p==='friend_story'){ const fr=FRIEND[S.normVal]; return `
@@ -667,9 +667,9 @@ function screenHTML(){
   if(p==='r4') return `
     <button onclick="go('friend_story')" style="font-size:12px;color:var(--muted);padding:.3rem .5rem;border:none;background:transparent;margin-bottom:.75rem;cursor:pointer;"><i class="ti ti-arrow-left" aria-hidden="true"></i> Review your friend\'s perspective</button>
     ${tag('ti-receipt','Income declaration · Final decision')}
-    ${prevBadge('Decision 1 (baseline)',S.r1)}
-    ${prevBadge('Decision 2 (after descriptive norm)',S.r2)}
-    ${prevBadge('Decision 3 (after prescriptive norm)',S.r3)}
+    ${prevBadge('Earlier declaration',S.r1)}
+    ${prevBadge('Previous declaration',S.r2)}
+    ${prevBadge('Most recent declaration',S.r3)}
     <div class="norm-box" style="background:var(--bg);">
       <div class="norm-lbl"><i class="ti ti-user-heart" aria-hidden="true" style="margin-right:4px;"></i>Your best friend's decision (counter-example)</div>
       <p class="prose">${FRIEND[S.normVal].text}</p>
@@ -867,7 +867,7 @@ function expPanelHTML(){
         <span style="font-weight:600;color:${S.auditResult.audited?'var(--danger)':'var(--ok)'};">${S.auditResult.audited?'Audited · fine '+fmt(S.auditResult.fine):'Not audited'}</span>
       </div>`:''}
     </div>`:''}
-    <div class="exp-note">INCOME=${fmt(INCOME)} · TAX=${(TAX_RATE*100).toFixed(0)}% · AUDIT=${(AUDIT_P*100).toFixed(0)}% · Society: survey-derived · Norm+Friend counter-example: randomised</div>
+    <div class="exp-note">INCOME=${fmt(INCOME)} · TAX=${(TAX_RATE*100).toFixed(0)}% · AUDIT=${(AUDIT_P*100).toFixed(0)}% · Society: survey-derived · Norm: randomised · Friend counter-example: shown to all</div>
   </div>`;
   if(!RESEARCHER_MODE) return '';
   return `<div><button class="exp-toggle" onclick="S.showPanel=!S.showPanel;render();"><i class="ti ti-settings" aria-hidden="true" style="margin-right:4px;"></i>Experimenter panel</button>${inner}</div>`;
