@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study Design Reference — Economic Decision-Making Study</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --ink:#111;--mid:#444;--faint:#777;--border:#ccc;--bg:#f8f8f6;
+    --green:#1A6B50;--green-bg:#eaf4f0;--green-bd:#aad4c4;
+    --red:#B03020;--red-bg:#fdf0ee;--red-bd:#f1bdb7;
+    --blue:#1B5C9B;--blue-bg:#ebf3fc;--blue-bd:#aecde8;
+    --amber:#8A5800;--amber-bg:#fef7e6;--amber-bd:#f0d090;
+    --purple:#6B3FA0;--purple-bg:#f4eefb;--purple-bd:#c9a8e8;
+  }
+  body{font-family:'Inter',sans-serif;font-size:11.5pt;color:var(--ink);background:#fff;
+       max-width:820px;margin:0 auto;padding:2.5rem 2rem 4rem;}
+  h1{font-size:19pt;font-weight:700;margin-bottom:.25rem;line-height:1.2;}
+  .subtitle{font-size:10.5pt;color:var(--mid);margin-bottom:2rem;}
+  h2{font-size:13pt;font-weight:700;margin:2rem 0 .65rem;padding-bottom:.35rem;
+     border-bottom:2px solid var(--ink);}
+  h3{font-size:10.5pt;font-weight:700;margin:1.25rem 0 .5rem;color:var(--mid);
+     text-transform:uppercase;letter-spacing:.05em;}
+  p{font-size:10.5pt;line-height:1.7;color:var(--mid);margin-bottom:.65rem;}
+  code{font-family:'Fira Mono',monospace;font-size:9.5pt;background:#f0f0ee;
+       padding:1px 5px;border-radius:3px;}
+  table{border-collapse:collapse;width:100%;margin-bottom:1rem;font-size:10pt;}
+  th{background:var(--bg);font-weight:600;text-align:left;padding:.45rem .75rem;
+     border:1px solid var(--border);}
+  td{padding:.4rem .75rem;border:1px solid var(--border);vertical-align:top;line-height:1.55;}
+  .tag{display:inline-block;font-size:8.5pt;font-weight:700;text-transform:uppercase;
+       letter-spacing:.06em;padding:2px 8px;border-radius:4px;margin-right:5px;}
+  .tag-good{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);}
+  .tag-bad{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);}
+  .tag-info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);}
+  .tag-warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
+  .tag-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd);}
+  .callout{border-radius:8px;padding:.875rem 1rem;margin-bottom:1rem;font-size:10pt;line-height:1.65;}
+  .callout-warn{background:var(--amber-bg);border:1.5px solid var(--amber-bd);}
+  .callout-warn strong{color:var(--amber);}
+  .callout-info{background:var(--blue-bg);border:1.5px solid var(--blue-bd);}
+  .callout-info strong{color:var(--blue);}
+  .callout-ok{background:var(--green-bg);border:1.5px solid var(--green-bd);}
+  .callout-ok strong{color:var(--green);}
+
+  /* ── FLOW DIAGRAM ── */
+  .flow{display:flex;flex-direction:column;align-items:center;gap:0;margin:1.25rem auto;max-width:680px;}
+  .flow-row{display:flex;align-items:flex-start;justify-content:center;gap:8px;width:100%;}
+  .box{border-radius:7px;padding:.55rem .9rem;font-size:9.5pt;line-height:1.5;text-align:center;
+       border:1.5px solid var(--border);background:#fff;min-width:160px;}
+  .box-screen{background:var(--bg);border-color:#bbb;}
+  .box-treatment{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
+  .box-decision{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
+  .box-warn{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
+  .box-end{background:#1a1917;color:#eee;border-color:#000;}
+  .box strong{display:block;font-weight:700;font-size:9pt;margin-bottom:1px;}
+  .flow-arrow{font-size:14pt;color:#aaa;text-align:center;line-height:1;padding:3px 0;}
+  .flow-split{display:flex;justify-content:center;gap:24px;width:100%;margin:2px 0;}
+  .flow-split-item{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;max-width:220px;}
+  .split-label{font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+               color:var(--faint);text-align:center;padding:3px 0;}
+
+  /* ── 2×2 GRID ── */
+  .design-grid{display:grid;grid-template-columns:auto 1fr 1fr;border:1.5px solid var(--border);
+               border-radius:8px;overflow:hidden;margin:1rem 0;font-size:9.5pt;}
+  .dg-cell{padding:.55rem .75rem;border:1px solid var(--border);line-height:1.5;}
+  .dg-header{font-weight:700;background:var(--bg);text-align:center;}
+  .dg-label{font-weight:600;background:var(--bg);}
+  .dg-good{background:var(--green-bg);}
+  .dg-bad{background:var(--red-bg);}
+  .dg-n{font-size:8.5pt;color:var(--faint);margin-top:2px;}
+
+  /* ── FORMULA BOX ── */
+  .formula{background:var(--bg);border:1.5px solid var(--border);border-radius:7px;
+           padding:.75rem 1rem;margin:.75rem 0;font-family:'Fira Mono',monospace;
+           font-size:10pt;line-height:2;color:var(--ink);}
+  .formula span{color:var(--blue);font-weight:600;}
+
+  @media print{
+    body{padding:1.5rem 1.25rem;font-size:10.5pt;}
+    h2{page-break-after:avoid;}
+    .callout,table,.flow,.design-grid{page-break-inside:avoid;}
+    a{text-decoration:none;color:inherit;}
+  }
+</style>
+</head>
+<body>
+
+<h1>Study Design Reference</h1>
+<div class="subtitle">Economic Decision-Making Study · Universitat Pompeu Fabra · v20 · May 2026</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>1 · Overview</h2>
+
+<p>Participants play as a fictitious character in their country of origin, make four sequential income-declaration decisions, and receive three information treatments between declarations. The study uses a <strong>2 × 2 between-subjects design</strong> on the norm dimension, with a within-subject society assignment derived from each participant's own survey responses.</p>
+
+<table>
+  <tr><th>Dimension</th><th>Levels</th><th>Assignment method</th></tr>
+  <tr><td><strong>Society</strong></td><td>Good · Bad</td><td>Survey-derived (see §3)</td></tr>
+  <tr><td><strong>Descriptive + Prescriptive norm</strong></td><td>Good · Bad</td><td>Random 50 / 50 at session start</td></tr>
+  <tr><td><strong>Friend story</strong></td><td>Shown to all</td><td>⚠ Not randomised — see §5</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>2 · Full Participant Flow</h2>
+
+<div class="flow">
+  <div class="flow-row"><div class="box box-screen"><strong>Consent</strong>Participant reads info &amp; agrees</div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-screen"><strong>Pre-screening</strong>BSE student? · Fictitious name · Country</div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-screen" style="max-width:400px;"><strong>Background survey (3 questions)</strong>Trust · Fund management · Corruption<br><span style="font-size:8.5pt;color:var(--faint);">→ computes correctedMedian → society assignment</span></div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-screen"><strong>Instructions + Game events</strong>3 everyday choices affect savings</div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-decision" style="max-width:340px;"><strong>R1 · Baseline declaration</strong>Slider 0–100 % · institutional context shown</div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-treatment" style="max-width:380px;"><strong>T1 · Descriptive norm</strong>"Most people declare honestly" <em>or</em> "Underreporting is widespread"</div></div>
+  <div class="flow-split">
+    <div class="flow-split-item">
+      <div class="split-label">Revise</div>
+      <div class="flow-arrow">↓</div>
+      <div class="box box-decision"><strong>R2 · Revised</strong>Slider resets to 100 %</div>
+    </div>
+    <div class="flow-split-item">
+      <div class="split-label">Keep</div>
+      <div class="flow-arrow">↓</div>
+      <div class="box box-decision"><strong>R2 = R1</strong>Recorded automatically</div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-treatment" style="max-width:380px;"><strong>T2 · Prescriptive norm</strong>"People consider evasion morally wrong" <em>or</em> "Evasion seen as understandable"</div></div>
+  <div class="flow-split">
+    <div class="flow-split-item">
+      <div class="split-label">Revise</div>
+      <div class="flow-arrow">↓</div>
+      <div class="box box-decision"><strong>R3 · Revised</strong>Slider resets to 100 %</div>
+    </div>
+    <div class="flow-split-item">
+      <div class="split-label">Keep</div>
+      <div class="flow-arrow">↓</div>
+      <div class="box box-decision"><strong>R3 = R2</strong>Recorded automatically</div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-warn" style="max-width:400px;"><strong>T3 · Friend story</strong>Shown to <u>all</u> participants · content = counter-example of assigned norm<br><span style="font-size:8pt;">(see §5 for current issue)</span></div></div>
+  <div class="flow-split">
+    <div class="flow-split-item">
+      <div class="split-label">Revise</div>
+      <div class="flow-arrow">↓</div>
+      <div class="box box-decision"><strong>R4 · Final</strong>Slider resets to 100 %</div>
+    </div>
+    <div class="flow-split-item">
+      <div class="split-label">Keep</div>
+      <div class="flow-arrow">↓</div>
+      <div class="box box-decision"><strong>R4 = R3</strong>Recorded automatically</div>
+    </div>
+  </div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-screen"><strong>computeAudit()</strong>Stochastic: 20 % chance if declared &lt; 100 %</div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-screen"><strong>Demographics questionnaire</strong>Gender · Age · Tax experience · Risk aversion · etc.</div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-screen"><strong>Free-text comments</strong></div></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-row"><div class="box box-end"><strong>End screen</strong>Audit result + savings breakdown revealed</div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>3 · Society Assignment (Survey-Derived)</h2>
+
+<p>After the pre-screening, each participant answers three background questions about their country of origin (each rated 1–5). Their answers determine which institutional context ("good" or "bad") they see throughout all declaration screens.</p>
+
+<table>
+  <tr><th>#</th><th>Question</th><th>Scale</th><th>Correction</th></tr>
+  <tr><td>Q1</td><td>How much do you trust public institutions in [C] to act in the public interest?</td><td>1 = Not at all · 5 = Very much</td><td>Used as-is</td></tr>
+  <tr><td>Q2</td><td>How well do you think public funds are managed and spent in [C]?</td><td>1 = Very poorly · 5 = Very well</td><td>Used as-is</td></tr>
+  <tr><td>Q3</td><td>How corrupt do you feel the government is in [C]?</td><td>1 = Not at all corrupt · 5 = Extremely corrupt</td><td><code>c3 = 6 − Q3</code> (reversed so high = less corrupt)</td></tr>
+</table>
+
+<div class="formula">
+correctedScores = { Q1, Q2, c3 }<br>
+correctedMedian = <span>median</span>( Q1, Q2, c3 )<br><br>
+if correctedMedian &gt; <span>SOCIETY_THRESHOLD (= 3)</span>  →  society = <strong>"good"</strong><br>
+if correctedMedian &lt; <span>SOCIETY_THRESHOLD</span>         →  society = <strong>"bad"</strong><br>
+if correctedMedian = <span>SOCIETY_THRESHOLD</span>          →  society = random 50 / 50
+</div>
+
+<div class="callout callout-info">
+  <strong>Pilot note:</strong> The threshold of 3 is the theoretical midpoint. After the pilot, replace it with the empirical median of your sample: <code>SOCIETY_THRESHOLD = empiricalMedian</code> (line 173 of the HTML). This ensures roughly equal group sizes.
+</div>
+
+<h3>Institutional context text shown to participant</h3>
+<table>
+  <tr><th>society = <span class="tag tag-good">GOOD</span></th><th>society = <span class="tag tag-bad">BAD</span></th></tr>
+  <tr>
+    <td>"…public institutions are perceived as largely effective. Tax revenues are directed toward public services in line with stated budgets, and public spending is subject to regular independent oversight. When misconduct is identified, formal consequences are typical."</td>
+    <td>"…public institutions are perceived as largely ineffective. Reports of public funds being misallocated or diverted are common, and public services remain underfunded relative to the level of tax collected. When misconduct is identified, formal consequences are rare."</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>4 · Norm Assignment (Randomised 50 / 50)</h2>
+
+<p>At session start, each participant is randomly assigned to <code>normVal = "good"</code> or <code>normVal = "bad"</code> with equal probability. This value governs <em>all three treatments</em> — descriptive norm (T1), prescriptive norm (T2), and the friend story (T3).</p>
+
+<div class="design-grid">
+  <div class="dg-cell dg-header" style="background:white;"></div>
+  <div class="dg-cell dg-header"><span class="tag tag-good">normVal = GOOD</span></div>
+  <div class="dg-cell dg-header"><span class="tag tag-bad">normVal = BAD</span></div>
+
+  <div class="dg-cell dg-label">T1 Descriptive norm</div>
+  <div class="dg-cell dg-good">"Most people in income brackets like yours tend to report their full income honestly."</div>
+  <div class="dg-cell dg-bad">"Underreporting income is widespread among people in income brackets like yours."</div>
+
+  <div class="dg-cell dg-label">T2 Prescriptive norm</div>
+  <div class="dg-cell dg-good">"The large majority of people consider underreporting income to be morally wrong, even when public institutions are perceived as effective."</div>
+  <div class="dg-cell dg-bad">"Many people consider underreporting income to be understandable when public funds are perceived as poorly managed."</div>
+
+  <div class="dg-cell dg-label">T3 Friend story</div>
+  <div class="dg-cell dg-bad" style="border:2px solid var(--amber-bd);">Friend <strong>evades</strong> (counter-example to good norm): "They underreported some income… I just couldn't justify paying every cent."</div>
+  <div class="dg-cell dg-good" style="border:2px solid var(--amber-bd);">Friend is <strong>fully compliant</strong> (counter-example to bad norm): "They declared their full income this year… I just couldn't bring myself to lie."</div>
+</div>
+
+<div class="callout callout-info">
+  <strong>Note on norm × society independence:</strong> normVal is assigned purely at random, independently of society. A participant in a "bad" society can receive either norm. This gives the 2 × 2 between-subjects design (society × normVal), with society endogenously derived and normVal exogenously randomised.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>5 · Friend Treatment — Current Design &amp; Open Issue</h2>
+
+<div class="callout callout-warn">
+  <strong>⚠ Current state:</strong> <code>friendTreat = true</code> is hardcoded for every participant. There is <strong>no control group</strong> — all participants see the friend story (T3). The friend story content is always the <em>opposite</em> of the assigned norm (<code>normVal</code>), making it a deliberate counter-example.
+</div>
+
+<h3>How the friend content is currently selected</h3>
+<table>
+  <tr><th>normVal assigned</th><th>T1 &amp; T2 message</th><th>Friend story (T3)</th><th>Intent</th></tr>
+  <tr>
+    <td><span class="tag tag-good">GOOD</span></td>
+    <td>Compliance is the norm; evasion is wrong</td>
+    <td>Friend evades (counters the good-norm message)</td>
+    <td>Tests whether a single counter-example weakens the pro-compliance norm</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-bad">BAD</span></td>
+    <td>Evasion is widespread; institutions are weak</td>
+    <td>Friend complies (counters the bad-norm message)</td>
+    <td>Tests whether a single counter-example weakens the pro-evasion norm</td>
+  </tr>
+</table>
+
+<h3>Decision needed</h3>
+<table>
+  <tr><th>Option</th><th>Design</th><th>What you can estimate</th></tr>
+  <tr>
+    <td><strong>A — Keep as-is</strong></td>
+    <td>All see T3; content tied to normVal. No randomisation of T3.</td>
+    <td>Within-person: does R4 differ from R3? But cannot separate T3 effect from cumulative norm fatigue.</td>
+  </tr>
+  <tr>
+    <td><strong>B — Randomise T3 on/off</strong><br><em>(recommended)</em></td>
+    <td>50 % see friend story (T3 = on); 50 % skip directly to R4. Content still tied to normVal for those who see it.</td>
+    <td>Causal effect of T3: compare R4 between T3-on and T3-off groups, controlling for R3.</td>
+  </tr>
+  <tr>
+    <td><strong>C — Randomise T3 content independently</strong></td>
+    <td>Decouple friend content from normVal: randomly show compliant friend or evading friend.</td>
+    <td>Whether the direction of the counter-example matters, independent of the prior norm.</td>
+  </tr>
+</table>
+
+<p>To implement Option B, change line 293 in the HTML from <code>friendTreat:true</code> to <code>friendTreat:Math.random()&lt;0.5</code>. The rest of the code already handles the <code>friendTreat=false</code> path (skips to transition after R3).</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>6 · Resulting Treatment Cells</h2>
+
+<p>With current code (friendTreat always on), there are <strong>4 cells</strong>. Implementing Option B would double this to 8.</p>
+
+<div class="design-grid" style="grid-template-columns:auto 1fr 1fr 1fr 1fr;">
+  <div class="dg-cell dg-header" style="background:white;">Society ↓ &nbsp; Norm →</div>
+  <div class="dg-cell dg-header"><span class="tag tag-good">normVal GOOD</span><br>T3 on</div>
+  <div class="dg-cell dg-header"><span class="tag tag-good">normVal GOOD</span><br>T3 off *</div>
+  <div class="dg-cell dg-header"><span class="tag tag-bad">normVal BAD</span><br>T3 on</div>
+  <div class="dg-cell dg-header"><span class="tag tag-bad">normVal BAD</span><br>T3 off *</div>
+
+  <div class="dg-cell dg-label"><span class="tag tag-good">GOOD</span> society</div>
+  <div class="dg-cell">R1→T1(G)→R2→T2(G)→R3→T3(evades)→R4</div>
+  <div class="dg-cell" style="color:#aaa;">R1→T1(G)→R2→T2(G)→R3→end</div>
+  <div class="dg-cell">R1→T1(B)→R2→T2(B)→R3→T3(complies)→R4</div>
+  <div class="dg-cell" style="color:#aaa;">R1→T1(B)→R2→T2(B)→R3→end</div>
+
+  <div class="dg-cell dg-label"><span class="tag tag-bad">BAD</span> society</div>
+  <div class="dg-cell">R1→T1(G)→R2→T2(G)→R3→T3(evades)→R4</div>
+  <div class="dg-cell" style="color:#aaa;">R1→T1(G)→R2→T2(G)→R3→end</div>
+  <div class="dg-cell">R1→T1(B)→R2→T2(B)→R3→T3(complies)→R4</div>
+  <div class="dg-cell" style="color:#aaa;">R1→T1(B)→R2→T2(B)→R3→end</div>
+</div>
+<p style="font-size:9pt;color:var(--faint);">* Greyed columns only exist if friendTreat is randomised (Option B above). Currently all participants are in T3-on columns only.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>7 · Financial Parameters &amp; Audit</h2>
+
+<table>
+  <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+  <tr><td>Annual income</td><td>€ 35,000</td><td>Fixed for all participants</td></tr>
+  <tr><td>Tax rate</td><td>30 %</td><td>Full tax owed = €10,500</td></tr>
+  <tr><td>Audit probability</td><td>20 %</td><td>Applied only if declared &lt; 100 %</td></tr>
+  <tr><td>Fine multiplier</td><td>2 ×</td><td>Fine = 2 × undeclared tax</td></tr>
+  <tr><td>Starting savings</td><td>€ 8,000</td><td>Changes with game events &amp; audit outcome</td></tr>
+</table>
+
+<h3>Audit computation (called after R4 or R3 if no friend story)</h3>
+<div class="formula">
+undeclared_tax  = (INCOME × TAX_RATE) − (INCOME × declared% × TAX_RATE)<br>
+audited         = <span>Bernoulli(p = 0.20)</span> &nbsp;&nbsp; <em>only drawn if declared% &lt; 100</em><br>
+fine            = audited ? <span>2 × undeclared_tax</span> : 0<br>
+sanction_total  = undeclared_tax + fine &nbsp; = &nbsp; <span>3 × undeclared_tax</span>
+</div>
+
+<h3>Savings calculation (applied at study end)</h3>
+<div class="formula">
+savings_final  =  savings_after_events<br>
+               +  undeclared_tax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>(retained from income)</em><br>
+               −  (audited ? undeclared_tax + fine : 0) &nbsp; <em>(clawed back if caught)</em>
+</div>
+
+<table>
+  <tr><th>Scenario</th><th>Net savings change from tax decision</th><th>Example (50 % declared)</th></tr>
+  <tr>
+    <td>Declared 100 %</td>
+    <td>No change <em>(undeclared = 0)</em></td>
+    <td>€ 0</td>
+  </tr>
+  <tr>
+    <td>Declared &lt; 100 %, not audited</td>
+    <td><strong>+ undeclared tax</strong> (gain)</td>
+    <td>+ € 5,250 &nbsp;<span style="font-size:9pt;color:var(--faint);">(50 % of €10,500)</span></td>
+  </tr>
+  <tr>
+    <td>Declared &lt; 100 %, audited &amp; caught</td>
+    <td><strong>− fine</strong> only &nbsp;<em>(undeclared cancels)</em></td>
+    <td>− € 10,500 &nbsp;<span style="font-size:9pt;color:var(--faint);">(2 × €5,250)</span></td>
+  </tr>
+</table>
+
+<div class="callout callout-ok">
+  <strong>Expected value of evasion:</strong> at 20 % audit probability and a fine multiplier of 2, the EV of declaring X% is:<br>
+  EV(evade) = 0.80 × undeclared + 0.20 × (−2 × undeclared) = 0.80U − 0.40U = <strong>+0.40 × undeclared</strong>.<br>
+  Evasion is financially attractive in expectation — which is intentional for eliciting variation in compliance behaviour.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>8 · Data Recorded per Participant</h2>
+
+<table>
+  <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>r1_baseline</code></td><td>0–100 %</td><td>Declaration after no treatment</td></tr>
+  <tr><td><code>r2_afterDescriptive</code></td><td>0–100 %</td><td>Declaration after T1</td></tr>
+  <tr><td><code>r3_afterPrescriptive</code></td><td>0–100 %</td><td>Declaration after T2</td></tr>
+  <tr><td><code>r4_afterFriendStory</code></td><td>0–100 %</td><td>Declaration after T3 (null if no friend story)</td></tr>
+  <tr><td><code>delta_r2_minus_r1</code></td><td>pp</td><td>Effect of T1 (descriptive norm)</td></tr>
+  <tr><td><code>delta_r3_minus_r2</code></td><td>pp</td><td>Effect of T2 (prescriptive norm)</td></tr>
+  <tr><td><code>delta_r4_minus_r3</code></td><td>pp</td><td>Effect of T3 (friend story)</td></tr>
+  <tr><td><code>desc_norm_decision_s</code></td><td>seconds</td><td>Time until "Revise" or "Keep" on T1</td></tr>
+  <tr><td><code>presc_norm_decision_s</code></td><td>seconds</td><td>Time until decision on T2</td></tr>
+  <tr><td><code>friend_story_decision_s</code></td><td>seconds</td><td>Time until decision on T3</td></tr>
+  <tr><td><code>r1_s … r4_s</code></td><td>seconds</td><td>Total time on each declaration screen (accumulated across back-navigation)</td></tr>
+  <tr><td><code>society</code></td><td>good / bad</td><td>Assigned from background survey median</td></tr>
+  <tr><td><code>norm</code></td><td>good / bad</td><td>Randomly assigned 50/50</td></tr>
+  <tr><td><code>correctedMedian</code></td><td>1–5</td><td>Median of {Q1, Q2, 6−Q3} used for society assignment</td></tr>
+  <tr><td><code>wasAudited</code></td><td>bool</td><td>Whether audit was triggered</td></tr>
+  <tr><td><code>finalSavings</code></td><td>€</td><td>Savings at end of study</td></tr>
+  <tr><td><code>evasionEstimatePercent</code></td><td>0–100 %</td><td>Participant's belief about evasion rate in their country</td></tr>
+  <tr><td><code>perceivedAuditLikelihood</code></td><td>0–100 %</td><td>Perceived probability of being caught</td></tr>
+  <tr><td><code>lotteryChoices</code></td><td>array of A/B</td><td>Risk aversion elicitation (5 rows)</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>9 · Open Questions &amp; Recommended Actions</h2>
+
+<table>
+  <tr><th>#</th><th>Issue</th><th>Recommended fix</th><th>Code location</th></tr>
+  <tr>
+    <td>1</td>
+    <td><strong>Friend treatment not randomised</strong> — all participants see T3; no control group exists</td>
+    <td>Change <code>friendTreat:true</code> to <code>friendTreat:Math.random()&lt;0.5</code></td>
+    <td>Line 293, study_v20.html</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><strong>Society threshold fixed at 3</strong> — may not split sample evenly in practice</td>
+    <td>After pilot, set <code>SOCIETY_THRESHOLD</code> = empirical median of correctedMedian distribution</td>
+    <td>Line 173, study_v20.html</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><strong>Norm tied to all three treatments</strong> — same <code>normVal</code> drives T1, T2, and T3 content; cannot separate their individual causal effects</td>
+    <td>Consider independent randomisation per treatment if disentangling effects matters</td>
+    <td>Architecture change</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><strong>Payment amounts in consent still [X] / [Y]</strong></td>
+    <td>Replace placeholders with real amounts before going live</td>
+    <td>Consent screen, study_v20.html</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><strong>Google Sheets endpoint hardcoded</strong> — if the endpoint changes, all versions break</td>
+    <td>Test with a dummy row submission before pilot launch</td>
+    <td>Line 167, <code>SHEETS_ENDPOINT</code></td>
+  </tr>
+</table>
+
+<hr style="margin:2.5rem 0;border:none;border-top:1px solid var(--border);">
+<p style="font-size:9pt;color:var(--faint);text-align:center;">
+  Generated from study_v20.html · BSE Experimental Economics · Contact: celina.ferrari@bse.eu · thibault.jannin@bse.eu · simone.distefano@bse.eu
+</p>
+
+</body>
+</html>

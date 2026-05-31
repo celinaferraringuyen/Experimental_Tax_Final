@@ -143,6 +143,9 @@ details summary{cursor:pointer;font-weight:600;font-size:12px;color:var(--text);
 .reveal-verdict{font-weight:700;font-size:1.1rem;margin-bottom:.35rem;}
 .reveal-desc{font-size:13px;line-height:1.65;}
 .reveal-box.ok .reveal-verdict{color:var(--ok);} .reveal-box.danger .reveal-verdict{color:var(--danger);}
+.hint-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--info-bg);color:var(--info);border:1px solid var(--info-bd);font-size:11px;font-weight:700;cursor:pointer;margin-left:5px;vertical-align:middle;padding:0;line-height:1;flex-shrink:0;}
+.hint-btn:hover{background:var(--info-bd);}
+.hint-box{background:var(--info-bg);border:1px solid var(--info-bd);border-radius:8px;padding:.65rem .875rem;font-size:12px;color:var(--muted);line-height:1.65;margin-top:.4rem;display:none;}
 </style>
 </head>
 <body>
@@ -239,7 +242,7 @@ let S = {
   auditResult:null,
   auditApplied:false,
   demo:{gender:null,age:'',paidTaxes:null,knowsAudited:null,auditOutcome:null,
-        knowsEvader:null,moralScore:null,evasionEstimate:50,auditLikelihood:null,lotteryChoices:[null,null,null,null,null],profession:'',comments:''},
+        knowsEvader:null,moralScore:null,evasionEstimate:50,auditLikelihood:50,lotteryChoices:[null,null,null,null,null],profession:'',comments:''},
   returnPhase:null,
   participantId:makeId(),
   sessionStart:new Date().toISOString(),
@@ -257,7 +260,8 @@ const hCol   = h => h>65?'#1A7A4A':h>38?'#A06B12':'#BE3B2A';
 
 const SQ=[
   {id:'trust', text:'How much do you trust public institutions in [C] to act in the public interest?', lo:'Not at all', hi:'Very much'},
-  {id:'manage',text:'How well do you think public funds are managed and spent in [C]?',              lo:'Very poorly',  hi:'Very well'},
+  {id:'manage',text:'How well do you think public funds are managed and spent in [C]?', lo:'Very poorly', hi:'Very well',
+   hint:'Public funds are taxpayer money spent by the government on services such as: schools and universities, hospitals and healthcare, roads and public transport, social welfare benefits, police and national defence, and public administration.'},
   {id:'direct',text:'Based on your personal experience, how corrupt do you feel the government is in [C]?',lo:'Not at all corrupt',hi:'Extremely corrupt'}
 ];
 
@@ -292,7 +296,6 @@ function missingDemo(){
   if(d.knowsAudited==='Yes'&&d.auditOutcome===null) ids.push('auditOutcome');
   if(!d.knowsEvader) ids.push('knowsEvader');
   if(!d.moralScore) ids.push('moralScore');
-  if(!d.auditLikelihood) ids.push('auditLikelihood');
   if(!d.lotteryChoices.every(c=>c!==null)) ids.push('lotteryChoices');
   if(d.profession.trim()==='') ids.push('profession');
   return ids;
@@ -347,13 +350,13 @@ function updSlider(key,val){
   recordResponse(key+'_declaration_pct',val);
   S[key+'Pct']=val;
   const dec=Math.round(INCOME*val/100),t=taxAmt(val),ft=taxAmt(100);
+  const undeclared=ft-t;
   const g=id=>document.getElementById(id);
   const a=g(key+'-lbl'); if(a) a.textContent=fmt(dec)+' ('+val+'%)';
   const b=g(key+'-tax'); if(b) b.textContent=fmt(t);
   const c=g(key+'-ar');  if(c) c.style.display=val<100?'flex':'none';
-  const d=g(key+'-aa');  if(d) d.textContent=fmt(ft-t);
-  const e=g(key+'-undeclared'); if(e) e.textContent=fmt(ft-t);
-  const f=g(key+'-sanction'); if(f) f.textContent=fmt((ft-t)*(1+FINE_MULT));
+  const d=g(key+'-aa');  if(d) d.textContent=fmt(undeclared);
+  const f=g(key+'-sanction'); if(f) f.textContent=fmt(undeclared*(1+FINE_MULT));
 }
 
 // ─── GAME HANDLERS ────────────────────────────────────────────────────────────
@@ -382,8 +385,11 @@ function updatePreButton(){
 }
 function _endPhase(phase){
   if(S.phaseTimings[phase]&&S.phaseTimings[phase].start){
+    const session_ms=Date.now()-S.phaseTimings[phase].start;
+    S.phaseTimings[phase].accumulated_ms=(S.phaseTimings[phase].accumulated_ms||0)+session_ms;
     S.phaseTimings[phase].end=Date.now();
-    S.phaseTimings[phase].duration_s=((S.phaseTimings[phase].end-S.phaseTimings[phase].start)/1000).toFixed(1);
+    S.phaseTimings[phase].duration_s=(S.phaseTimings[phase].accumulated_ms/1000).toFixed(1);
+    S.phaseTimings[phase].start=null;
   }
 }
 function recordResponse(qid,value){
@@ -401,14 +407,15 @@ function recordResponse(qid,value){
 }
 function go(phase){
   var timed=['prescreening','background','event','r1','desc_norm','r2','presc_norm','r3','friend_story','r4','transition','demographics','audit_reveal','debrief','comments'];
+  // accumulate time on the phase we are leaving
+  if(S.phase && timed.indexOf(S.phase)>-1) _endPhase(S.phase);
   if(timed.indexOf(phase)>-1){
     S.phaseTimings[phase]=S.phaseTimings[phase]||{};
-    S.phaseTimings[phase].start=Date.now();
+    S.phaseTimings[phase].start=Date.now(); // restart stopwatch for this visit
+    S.phaseTimings[phase].visits=(S.phaseTimings[phase].visits||0)+1;
   }
   S.phase=phase; render();
-  var visibleTimer=['r1','desc_norm','r2','presc_norm','r3','friend_story','r4'];
-  if(visibleTimer.indexOf(phase)>-1) startPhaseTimer();
-  else clearInterval(_timerInterval);
+  clearInterval(_timerInterval); // timer runs in background only; no visible element
 }
 
 // ─── AUDIT COMPUTATION ────────────────────────────────────────────────────────
@@ -442,11 +449,11 @@ function gameEvents(){
      choices:[
        {label:'Join the trip',             detail:`−${S.currency}700`,   fx:{savings:-700, happiness:14}},
        {label:'Give it a miss this time',  detail:'No cost',             fx:{savings:0,    happiness:-6}}]},
-    {tag:'Home · Autumn', icon:'ti-tool', title:'Something breaks down',
-     body:`Your electric bicycle — your main way of getting around ${city} — needs urgent repairs. You need to decide whether to repair it or replace it.`,
+    {tag:'Work · Autumn', icon:'ti-device-laptop', title:'Time for an upgrade',
+     body:`Your work laptop has been slowing down. A new client project requires software your current machine struggles to run. You need to decide how to handle it.`,
      choices:[
-       {label:'Repair the electric bicycle', detail:`−${S.currency}150`, fx:{savings:-150, happiness:4}},
-       {label:'Buy a new electric bicycle',  detail:`−${S.currency}500`, fx:{savings:-500, happiness:8}}]}
+       {label:'Upgrade the RAM and storage',  detail:`−${S.currency}200`, fx:{savings:-200, happiness:5}},
+       {label:'Buy a new laptop',             detail:`−${S.currency}800`, fx:{savings:-800, happiness:10}}]}
   ];
 }
 
@@ -470,10 +477,10 @@ const PRESC={
 const FRIEND={
   // Good norm: friend did the opposite -> evaded
   good:{lbl:"A conversation with your best friend",icon:'ti-user-heart',
-    text:"Shortly after filing your return, you catch up with your best friend. They mention, almost casually, that they underreported some income this year. \"Not much,\" they said. \"But honestly, the way the government spends it, I just couldn't justify paying every cent.\" You didn't expect that from them."},
+    text:"Before submitting your final declaration, you catch up with your best friend. They mention, almost casually, that they underreported some income this year. \"Not much,\" they said. \"But honestly, the way the government spends it, I just couldn't justify paying every cent.\" You didn't expect that from them."},
   // Bad norm: friend did the opposite -> fully compliant
   bad:{lbl:"A conversation with your best friend",icon:'ti-user-heart',
-    text:"Shortly after filing your return, you catch up with your best friend. They tell you they declared their full income this year, every cent. \"I know it's not what most people do,\" they said. \"But I just couldn't bring myself to lie on an official document.\" You didn't expect that from them."}
+    text:"Before submitting your final declaration, you catch up with your best friend. They tell you they declared their full income this year, every cent. \"I know it's not what most people do,\" they said. \"But I just couldn't bring myself to lie on an official document.\" You didn't expect that from them."}
 };
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -497,10 +504,14 @@ function buildData(){
       fine:S.auditResult.fine,finalSavings:S.savings}:null,
     responseTimings:{
       r1_s:S.phaseTimings.r1&&S.phaseTimings.r1.duration_s,
+      desc_norm_s:S.phaseTimings.desc_norm&&S.phaseTimings.desc_norm.duration_s,
       r2_s:S.phaseTimings.r2&&S.phaseTimings.r2.duration_s,
+      presc_norm_s:S.phaseTimings.presc_norm&&S.phaseTimings.presc_norm.duration_s,
       r3_s:S.phaseTimings.r3&&S.phaseTimings.r3.duration_s,
+      friend_story_s:S.phaseTimings.friend_story&&S.phaseTimings.friend_story.duration_s,
       r4_s:S.phaseTimings.r4&&S.phaseTimings.r4.duration_s,
       demographics_s:S.phaseTimings.demographics&&S.phaseTimings.demographics.duration_s,
+      visits_per_phase:Object.fromEntries(['r1','desc_norm','r2','presc_norm','r3','friend_story','r4'].map(p=>[p,S.phaseTimings[p]&&S.phaseTimings[p].visits||0])),
       perQuestion:S.responseTimings
     },
     finalQuestions:{gender:S.demo.gender,age:S.demo.age,hasPaidTaxes:S.demo.paidTaxes,
@@ -544,10 +555,12 @@ function normBox(n){ return `<div class="norm-box"><div class="norm-lbl"><i clas
 function prevBadge(lbl,pct){ return `<div class="prev-badge"><span style="color:var(--muted);">${lbl}</span><span style="font-weight:600;">${pct}% declared</span></div>`; }
 function statBox(rows){ return `<div class="stat-box">${rows.map(([l,v])=>`<div class="stat-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`).join('')}</div>`; }
 function decisionActions(backFn,changeFn,keepFn){
-  return `<div class="decision-actions">
-    <button class="back-btn" onclick="${backFn}"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to previous decision</button>
-    <button class="btn-primary" onclick="${changeFn}">Change my decision <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
-    <button class="secondary-btn" onclick="${keepFn}">Continue without changing</button>
+  return `<div style="margin-top:1.375rem;">
+    <div style="display:flex;gap:8px;margin-bottom:.5rem;">
+      <button class="btn-primary" style="flex:1;" onclick="${changeFn}">Revise my declaration <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+      <button style="flex:1;padding:.65rem 1rem;font-weight:600;font-size:13px;border:1px solid var(--border2);border-radius:8px;background:var(--card);cursor:pointer;" onclick="${keepFn}">Keep my declaration</button>
+    </div>
+    <button style="font-size:12px;color:var(--faint);padding:.35rem .5rem;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;gap:4px;" onclick="${backFn}"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to previous information</button>
   </div>`;
 }
 function sanctionFormulaBox(){
@@ -582,9 +595,15 @@ function taxBlock(key,pctKey,btnTxt){
     ${sanctionFormulaBox()}
     <div class="stat-box" style="margin-bottom:1rem;">
       <div class="stat-row"><span class="lbl">Tax due if this declaration is final</span><span class="val" id="${key}-tax">${fmt(t)}</span></div>
-      <div id="${key}-ar" style="display:${pct<100?'flex':'none'};justify-content:space-between;font-size:13px;padding:5px 0 2px;border-top:1px solid var(--border);margin-top:5px;">
-        <span style="color:var(--danger);">Undeclared tax</span>
-        <span id="${key}-aa" style="color:var(--danger);font-weight:600;">${fmt(ft-t)}</span>
+      <div id="${key}-ar" style="display:${pct<100?'flex':'none'};flex-direction:column;border-top:1px solid var(--border);padding-top:7px;margin-top:5px;gap:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span style="color:var(--danger);">Undeclared tax</span>
+          <span id="${key}-aa" style="color:var(--danger);font-weight:600;">${fmt(ft-t)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:var(--faint);">Sanction if audited (undeclared + fine)</span>
+          <span id="${key}-sanction" style="color:var(--faint);font-weight:600;">${fmt(undeclared*(1+FINE_MULT))}</span>
+        </div>
       </div>
     </div>
     <button class="btn-wide primary" onclick="${sf}">${btnTxt}</button>`;
@@ -602,7 +621,7 @@ function screenHTML(){
       <div class="consent-meta">Participant Information &amp; Consent &nbsp;·&nbsp; Contact: ${RESEARCHER_ALL}</div>
     </div>
     <div class="consent-section"><h4>About this study</h4>
-      <p>You will be presented with a series of hypothetical scenarios and asked to make decisions. The study takes approximately <strong>20–30 minutes</strong>. All scenarios are fictional — you will not be asked for any personal financial information.</p></div>
+      <p>You will be presented with a series of hypothetical scenarios and asked to make decisions. The study takes approximately <strong>10–20 minutes</strong>. All scenarios are fictional — you will not be asked for any personal financial information.</p></div>
     <div class="consent-section"><h4>What you will do</h4>
       <ul><li>Read background information about a hypothetical context.</li>
       <li>Make a series of decisions based on that scenario.</li>
@@ -610,7 +629,7 @@ function screenHTML(){
     <div class="consent-section"><h4>Participation &amp; compensation</h4>
       <ul><li>Participation is entirely voluntary. You may stop at any time without consequence.</li>
       <li>You must be <strong>18 or older</strong> to take part.</li>
-      <li>You will receive a base payment of €[X], plus a performance bonus of up to €[Y].</li></ul></div>
+      <li>All payments and financial amounts in this study are <strong>hypothetical</strong>. No real money will be earned or lost.</li></ul></div>
     <div class="consent-section"><h4>Your data &amp; privacy (GDPR)</h4>
       <ul><li>Your responses are linked to a fictitious name, not your real identity.</li>
       <li>Data is stored securely and only accessible to the research team.</li>
@@ -671,7 +690,8 @@ function screenHTML(){
       <p class="prose" style="margin-bottom:1.375rem;">Think about <strong>${C}</strong>. Rate the following on a scale from 1 to 5. There are no right or wrong answers.</p>
       ${validationAlertHTML()}
       ${SQ.map(q=>`<div class="q-block${missingClass('background_'+q.id)}">
-        <p class="q-label">${q.text.replace('[C]',C)}</p>
+        <p class="q-label">${q.text.replace('[C]',C)}${q.hint?`<button class="hint-btn" onclick="toggleHint('hint-bg-${q.id}')" title="What does this mean?">i</button>`:''}</p>
+        ${q.hint?`<div class="hint-box" id="hint-bg-${q.id}">${q.hint}</div>`:''}
         <div class="scale">${[1,2,3,4,5].map(v=>`<button class="${S.corr[q.id]===v?'sel':''}" onclick="recordResponse('background_${q.id}',${v});S.corr['${q.id}']=${v};S.validationErrors=S.validationErrors.filter(id=>id!=='background_${q.id}');render();">${v}</button>`).join('')}</div>
         <div class="scale-labs"><span>${q.lo}</span><span>${q.hi}</span></div>
         ${missingMsg('background_'+q.id)}
@@ -710,15 +730,16 @@ function screenHTML(){
   if(p==='r1') return `
     <button onclick="S.returnPhase='r1';go('stage_intro');" style="font-size:12px;color:var(--muted);padding:.3rem .5rem;border:none;background:transparent;margin-bottom:.75rem;cursor:pointer;"><i class="ti ti-info-circle" aria-hidden="true"></i> View instructions</button>
     ${tag('ti-receipt','Income declaration')}
-    <h3 style="margin-bottom:.5rem;">Time to file your annual return</h3>
-    <p class="prose" style="margin-bottom:.5rem;">In ${S.countryOfOrigin||'your country'}, ${R1_CTX[S.society]}</p><p class="prose" style="margin-bottom:1rem;">It is March and your annual income declaration is due. How much of your income will you declare?</p>
+    <h3 style="margin-bottom:.5rem;">Annual income declaration</h3>
+    <p class="prose" style="margin-bottom:.5rem;">In ${S.countryOfOrigin||'your country'}, ${R1_CTX[S.society]}</p>
+    <p class="prose" style="margin-bottom:1rem;">It is the end of the fiscal year. You are required to submit a declaration of all income earned in the past twelve months. Based on your declaration, the tax authority will determine your final tax position. You have discretion over how much income to declare — the slider below represents your choice.</p>
     ${taxBlock('r1','r1Pct','Submit declaration')}`;
 
   // DESC NORM ────────────────────────────────────────────────────────────────
   if(p==='desc_norm'){ const d=DESC[S.normVal]; return `
     <div class="stage-pill">New information</div>
     ${tag('ti-news','New information')}
-    <p class="story" style="margin-bottom:1rem;">While preparing your return, you come across a recent survey about income reporting behaviour in ${S.city}:</p>
+    <p class="story" style="margin-bottom:1rem;">Before the deadline, you come across a recent survey about income reporting behaviour in ${S.city}:</p>
     ${normBox(d)}
     <p class="prose" style="margin-bottom:0;">Would you like to change your declaration?</p>
     ${decisionActions("go('r1')","changeR2()","keepR2()")}`;}
@@ -764,7 +785,7 @@ function screenHTML(){
     ${prevBadge('Previous declaration',S.r2)}
     ${prevBadge('Most recent declaration',S.r3)}
     <div class="norm-box" style="background:var(--bg);">
-      <div class="norm-lbl"><i class="ti ti-user-heart" aria-hidden="true" style="margin-right:4px;"></i>Your best friend's decision (counter-example)</div>
+      <div class="norm-lbl"><i class="ti ti-user-heart" aria-hidden="true" style="margin-right:4px;"></i>Your best friend's decision</div>
       <p class="prose">${FRIEND[S.normVal].text}</p>
     </div>
     ${taxBlock('r4','r4Pct','Submit final decision')}`;
@@ -798,7 +819,9 @@ function screenHTML(){
         ${d.knowsAudited==='Yes'?`<div class="conditional-block${missingClass('auditOutcome')}"><p class="q-sublabel">What was the outcome?</p>
           <div class="opt-row">${['They were found compliant','They faced a penalty','I do not know the outcome'].map(o=>`<button class="${d.auditOutcome===o?'sel':''}" onclick="recordResponse('audit_outcome','${o}');S.demo.auditOutcome='${o}';S.validationErrors=S.validationErrors.filter(id=>id!=='auditOutcome');render();">${o}</button>`).join('')}</div>${missingMsg('auditOutcome')}</div>`:''}
       </div>
-      <div class="q-block${missingClass('knowsEvader')}"><p class="q-label">Do you personally know anyone who has, to your knowledge, underreported income or avoided paying taxes?</p>
+      <div class="q-block${missingClass('knowsEvader')}">
+        <p class="q-label">Do you personally know anyone who has, to your knowledge, underreported income or avoided paying taxes?<button class="hint-btn" onclick="toggleHint('hint-evader')" title="What counts as underreporting?">i</button></p>
+        <div class="hint-box" id="hint-evader">Examples of underreporting include: not declaring cash earnings from a side job or freelance work; omitting rental income; not reporting interest or investment gains. It does not include legal tax reliefs or deductions.</div>
         <div class="opt-row">${['Yes','No','Unsure'].map(o=>`<button class="${d.knowsEvader===o?'sel':''}" onclick="recordResponse('knows_evader','${o}');S.demo.knowsEvader='${o}';S.validationErrors=S.validationErrors.filter(id=>id!=='knowsEvader');render();">${o}</button>`).join('')}</div>${missingMsg('knowsEvader')}</div>
       <div class="q-block${missingClass('moralScore')}"><p class="q-label">How morally wrong do you personally think it is to underreport income to avoid paying taxes?</p>
         <div class="scale">${[1,2,3,4,5].map(v=>`<button class="${d.moralScore===v?'sel':''}" onclick="recordResponse('moral_wrongness',${v});S.demo.moralScore=${v};S.validationErrors=S.validationErrors.filter(id=>id!=='moralScore');render();">${v}</button>`).join('')}</div>
@@ -810,9 +833,13 @@ function screenHTML(){
           <span id="ev-val" style="font-weight:600;font-size:13px;white-space:nowrap;">${d.evasionEstimate}%</span>
         </div>
         <div class="scale-labs"><span>0% — nobody</span><span>100% — everyone</span></div></div>
-      <div class="q-block${missingClass('auditLikelihood')}"><p class="q-label">How likely do you think it is that someone who underreports their income will be caught?</p>
-        <div class="scale">${[1,2,3,4,5].map(v=>`<button class="${d.auditLikelihood===v?'sel':''}" onclick="recordResponse('audit_likelihood',${v});S.demo.auditLikelihood=${v};S.validationErrors=S.validationErrors.filter(id=>id!=='auditLikelihood');render();">${v}</button>`).join('')}</div>
-        <div class="scale-labs"><span>Very unlikely</span><span>Very likely</span></div>${missingMsg('auditLikelihood')}</div>
+      <div class="q-block"><p class="q-label">What percentage chance do you think someone who underreports their income has of being caught?</p>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <input type="range" min="0" max="100" step="5" value="${d.auditLikelihood}" style="flex:1;"
+            oninput="recordResponse('audit_likelihood',parseInt(this.value));S.demo.auditLikelihood=parseInt(this.value);document.getElementById('al-val').textContent=this.value+'%';">
+          <span id="al-val" style="font-weight:600;font-size:13px;white-space:nowrap;">${d.auditLikelihood}%</span>
+        </div>
+        <div class="scale-labs"><span>0% — never caught</span><span>100% — always caught</span></div></div>
       <div class="q-block${missingClass('lotteryChoices')}">${lotteryGrid()}${missingMsg('lotteryChoices')}</div>
       <div class="q-block${missingClass('profession')}"><p class="q-label">What is your current field of study or profession?</p>
         <input type="text" placeholder="e.g. Economics, Medicine, Engineering…" value="${d.profession}" oninput="recordResponse('profession','typed');S.demo.profession=this.value;">${missingMsg('profession')}</div>
@@ -937,7 +964,20 @@ function expPanelHTML(){
         <span style="font-weight:600;color:${S.auditResult.audited?'var(--danger)':'var(--ok)'};">${S.auditResult.audited?'Audited · fine '+fmt(S.auditResult.fine):'Not audited'}</span>
       </div>`:''}
     </div>`:''}
-    <div class="exp-note">INCOME=${fmt(INCOME)} · TAX=${(TAX_RATE*100).toFixed(0)}% · AUDIT=${(AUDIT_P*100).toFixed(0)}% · Society: survey-derived · Norm: randomised · Friend counter-example: shown to all</div>
+    <div style="border-top:1px solid var(--border);padding-top:.875rem;margin-top:.875rem;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;">Screen timing (seconds on each screen, accumulated across back-navigation)</div>
+      <div style="display:grid;grid-template-columns:auto auto 1fr;gap:3px 10px;font-size:11px;">
+        ${['r1','desc_norm','r2','presc_norm','r3','friend_story','r4'].map(ph=>{
+          const pt=S.phaseTimings[ph];
+          const live=pt&&pt.start?Math.round((Date.now()-pt.start)/1000):0;
+          const acc=pt?(pt.accumulated_ms||0)/1000:0;
+          const total=(acc+live).toFixed(1);
+          const visits=pt&&pt.visits?pt.visits:0;
+          return `<span style="color:var(--faint);">${ph}</span><span style="font-weight:600;">${pt?total+'s':'—'}</span><span style="color:var(--faint);">${visits>1?'('+visits+' visits)':''}</span>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="exp-note">INCOME=${fmt(INCOME)} · TAX=${(TAX_RATE*100).toFixed(0)}% · AUDIT=${(AUDIT_P*100).toFixed(0)}% · Society: survey-derived · Norm: randomised · Friend story: shown to all</div>
   </div>`;
   if(!RESEARCHER_MODE) return '';
   return `<div><button class="exp-toggle" onclick="S.showPanel=!S.showPanel;render();"><i class="ti ti-settings" aria-hidden="true" style="margin-right:4px;"></i>Experimenter panel</button>${inner}</div>`;
@@ -983,27 +1023,14 @@ function lotteryGrid(){
 }
 
 let _lastPhase='';
-let _timerInterval=null;
-function startPhaseTimer(){
-  clearInterval(_timerInterval);
-  _timerInterval=setInterval(function(){
-    var el=document.getElementById('phase-timer');
-    if(!el){ clearInterval(_timerInterval); return; }
-    if(S.phaseTimings[S.phase]&&S.phaseTimings[S.phase].start){
-      var elapsed=Math.round((Date.now()-S.phaseTimings[S.phase].start)/1000);
-      var m=Math.floor(elapsed/60),s=elapsed%60;
-      el.textContent=m>0?m+'m '+s+'s':elapsed+'s';
-    }
-  },1000);
+let _timerInterval=null; // kept for compatibility; no visible timer shown to participants
+function toggleHint(id){
+  var el=document.getElementById(id);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
 }
 function render(){
   document.getElementById('char-bar-wrap').innerHTML=charBarHTML();
-  var content=screenHTML();
-  var timerPhases=['r1','r2','r3','r4','desc_norm','presc_norm','friend_story'];
-  if(timerPhases.indexOf(S.phase)>-1){
-    content='<div style="font-size:11px;color:var(--faint);margin-bottom:.875rem;display:flex;align-items:center;gap:5px;"><i class="ti ti-clock" aria-hidden="true"></i><span>Time on this page: <strong id="phase-timer">0s</strong></span></div>'+content;
-  }
-  document.getElementById('main-card').innerHTML=content;
+  document.getElementById('main-card').innerHTML=screenHTML();
   document.getElementById('exp-wrap').innerHTML=expPanelHTML();
   updateProgress();
   if(S.phase!==_lastPhase){ window.scrollTo({top:0,behavior:'smooth'}); _lastPhase=S.phase; }
