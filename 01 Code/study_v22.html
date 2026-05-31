@@ -217,6 +217,8 @@ function getCity(c){
     'finland':'Helsinki','iceland':'Reykjavik','luxembourg':'Luxembourg City',
     'malta':'Valletta','cyprus':'Nicosia','liechtenstein':'Vaduz',
     'monaco':'Monaco','andorra':'Andorra la Vella','san marino':'San Marino',
+    'gibraltar':'Gibraltar','faroe islands':'Tórshavn',
+    'guernsey':'St. Peter Port','jersey':'Saint Helier','isle of man':'Douglas',
     // Central & Eastern Europe
     'poland':'Warsaw','czechia':'Prague','czech republic':'Prague',
     'hungary':'Budapest','slovakia':'Bratislava','slovenia':'Ljubljana',
@@ -225,56 +227,122 @@ function getCity(c){
     'north macedonia':'Skopje','albania':'Tirana','kosovo':'Pristina',
     'montenegro':'Podgorica','moldova':'Chișinău','belarus':'Minsk',
     'ukraine':'Kyiv','russia':'Moscow',
-    // Baltic & Nordic
+    // Baltic
     'estonia':'Tallinn','latvia':'Riga','lithuania':'Vilnius',
     // Caucasus & Central Asia
     'georgia':'Tbilisi','armenia':'Yerevan','azerbaijan':'Baku',
     'kazakhstan':'Almaty','uzbekistan':'Tashkent','kyrgyzstan':'Bishkek',
     'tajikistan':'Dushanbe','turkmenistan':'Ashgabat',
+    // Partially-recognised / disputed
+    'afghanistan':'Kabul','abkhazia':'Sukhumi','artsakh / nagorno-karabakh':'Stepanakert',
+    'nagorno-karabakh':'Stepanakert','transnistria':'Tiraspol',
+    'northern cyprus':'Nicosia','south ossetia':'Tskhinvali',
+    'somaliland':'Hargeisa',
     // Middle East
-    'israel':'Tel Aviv','turkey':'Istanbul','uae':'Dubai',
-    'united arab emirates':'Dubai','saudi arabia':'Riyadh','qatar':'Doha',
-    'kuwait':'Kuwait City','bahrain':'Manama','oman':'Muscat',
-    'jordan':'Amman','lebanon':'Beirut','iraq':'Baghdad','iran':'Tehran',
-    'syria':'Damascus','yemen':'Sanaa','palestine':'Ramallah',
-    // South & Southeast Asia
+    'israel':'Tel Aviv','turkey':'Istanbul',
+    'united arab emirates':'Dubai','uae':'Dubai',
+    'saudi arabia':'Riyadh','qatar':'Doha','kuwait':'Kuwait City',
+    'bahrain':'Manama','oman':'Muscat','jordan':'Amman',
+    'lebanon':'Beirut','iraq':'Baghdad','iran':'Tehran',
+    'syria':'Damascus','yemen':'Aden','palestine':'Ramallah',
+    // South Asia
     'india':'Mumbai','pakistan':'Karachi','bangladesh':'Dhaka',
-    'sri lanka':'Colombo','nepal':'Kathmandu','myanmar':'Yangon',
-    'thailand':'Bangkok','vietnam':'Ho Chi Minh City','cambodia':'Phnom Penh',
-    'laos':'Vientiane','malaysia':'Kuala Lumpur','singapore':'Singapore',
-    'indonesia':'Jakarta','philippines':'Manila','timor-leste':'Dili',
+    'sri lanka':'Colombo','nepal':'Kathmandu','bhutan':'Thimphu',
+    'maldives':'Malé',
+    // Southeast Asia
+    'myanmar':'Yangon','thailand':'Bangkok','vietnam':'Ho Chi Minh City',
+    'cambodia':'Phnom Penh','laos':'Vientiane','malaysia':'Kuala Lumpur',
+    'singapore':'Singapore','indonesia':'Jakarta','philippines':'Manila',
+    'timor-leste':'Dili','brunei':'Bandar Seri Begawan',
     // East Asia
     'china':'Shanghai','japan':'Tokyo','south korea':'Seoul',
     'taiwan':'Taipei','hong kong':'Hong Kong','mongolia':'Ulaanbaatar',
+    'macao':'Macau','north korea':'Pyongyang',
     // Oceania
     'australia':'Sydney','new zealand':'Auckland',
-    'papua new guinea':'Port Moresby',
+    'papua new guinea':'Port Moresby','fiji':'Suva',
+    'solomon islands':'Honiara','vanuatu':'Port Vila','samoa':'Apia',
+    'tonga':'Nukuʻalofa','kiribati':'South Tarawa','tuvalu':'Funafuti',
+    'nauru':'Yaren','palau':'Koror','marshall islands':'Majuro',
+    'micronesia':'Palikir','cook islands':'Avarua',
+    'french polynesia':'Papeete','new caledonia':'Nouméa',
+    'guam':'Hagåtña','northern mariana islands':'Saipan',
+    'american samoa':'Pago Pago',
     // North America
     'united states':'New York','usa':'New York','canada':'Toronto',
-    'mexico':'Mexico City',
+    'mexico':'Mexico City','puerto rico':'San Juan',
+    'united states virgin islands':'Charlotte Amalie',
+    'bermuda':'Hamilton','greenland':'Nuuk',
     // Caribbean & Central America
     'cuba':'Havana','dominican republic':'Santo Domingo',
     'haiti':'Port-au-Prince','jamaica':'Kingston',
+    'trinidad and tobago':'Port of Spain','barbados':'Bridgetown',
+    'bahamas':'Nassau','antigua and barbuda':'Saint John\'s',
+    'saint lucia':'Castries','grenada':'St. George\'s',
+    'saint vincent and the grenadines':'Kingstown',
+    'saint kitts and nevis':'Basseterre','dominica':'Roseau',
+    'aruba':'Oranjestad','curacao':'Willemstad',
+    'cayman islands':'George Town','turks and caicos islands':'Cockburn Town',
+    'british virgin islands':'Road Town','anguilla':'The Valley',
+    'saint martin':'Marigot','sint maarten':'Philipsburg',
+    'martinique':'Fort-de-France','guadeloupe':'Pointe-à-Pitre',
+    'saint barthelemy':'Gustavia',
+    'saint pierre and miquelon':'Saint-Pierre',
+    'bonaire, sint eustatius and saba':'Kralendijk',
     'guatemala':'Guatemala City','honduras':'Tegucigalpa',
     'el salvador':'San Salvador','nicaragua':'Managua',
     'costa rica':'San José','panama':'Panama City',
+    'belize':'Belize City',
     // South America
     'brazil':'São Paulo','argentina':'Buenos Aires','colombia':'Bogotá',
     'chile':'Santiago','peru':'Lima','venezuela':'Caracas',
-    'ecuador':'Quito','bolivia':'La Paz','paraguay':'Asunción',
+    'ecuador':'Guayaquil','bolivia':'La Paz','paraguay':'Asunción',
     'uruguay':'Montevideo','suriname':'Paramaribo','guyana':'Georgetown',
-    // Africa
-    'nigeria':'Lagos','south africa':'Johannesburg','egypt':'Cairo',
-    'kenya':'Nairobi','ethiopia':'Addis Ababa','ghana':'Accra',
-    'tanzania':'Dar es Salaam','uganda':'Kampala','rwanda':'Kigali',
-    'senegal':'Dakar','ivory coast':'Abidjan',"cote d'ivoire":'Abidjan',
-    'cameroon':'Yaoundé','angola':'Luanda','mozambique':'Maputo',
-    'zambia':'Lusaka','zimbabwe':'Harare','mali':'Bamako',
-    'burkina faso':'Ouagadougou','guinea':'Conakry',
+    'french guiana':'Cayenne','falkland islands':'Stanley',
+    // Africa — North
     'morocco':'Casablanca','algeria':'Algiers','tunisia':'Tunis',
-    'libya':'Tripoli','sudan':'Khartoum','somalia':'Mogadishu',
-    'democratic republic of the congo':'Kinshasa','congo':'Brazzaville',
-    'madagascar':'Antananarivo'
+    'libya':'Tripoli','egypt':'Cairo','sudan':'Khartoum',
+    'south sudan':'Juba','western sahara':'El Aaiún',
+    // Africa — West
+    'nigeria':'Lagos','ghana':'Accra','senegal':'Dakar',
+    'ivory coast':'Abidjan',"cote d'ivoire":'Abidjan',
+    'mali':'Bamako','burkina faso':'Ouagadougou','guinea':'Conakry',
+    'sierra leone':'Freetown','liberia':'Monrovia','benin':'Cotonou',
+    'togo':'Lomé','niger':'Niamey','mauritania':'Nouakchott',
+    'gambia':'Banjul','guinea-bissau':'Bissau','cape verde':'Praia',
+    'cabo verde':'Praia',
+    // Africa — Central
+    'cameroon':'Douala','democratic republic of the congo':'Kinshasa',
+    'congo':'Brazzaville','central african republic':'Bangui',
+    'chad':'N\'Djamena','gabon':'Libreville',
+    'equatorial guinea':'Malabo','sao tome and principe':'São Tomé',
+    // Africa — East
+    'ethiopia':'Addis Ababa','kenya':'Nairobi','tanzania':'Dar es Salaam',
+    'uganda':'Kampala','rwanda':'Kigali','somalia':'Mogadishu',
+    'djibouti':'Djibouti City','eritrea':'Asmara','burundi':'Bujumbura',
+    'madagascar':'Antananarivo','comoros':'Moroni',
+    'mauritius':'Port Louis','seychelles':'Victoria',
+    'mayotte':'Mamoudzou','reunion':'Saint-Denis',
+    // Africa — Southern
+    'south africa':'Johannesburg','angola':'Luanda','mozambique':'Maputo',
+    'zimbabwe':'Harare','zambia':'Lusaka','malawi':'Blantyre',
+    'namibia':'Windhoek','botswana':'Gaborone','eswatini':'Mbabane',
+    'lesotho':'Maseru',
+    // Other territories / special cases
+    'vatican city':'Vatican City','svalbard and jan mayen':'Longyearbyen',
+    'aland islands':'Mariehamn','tokelau':'Nukunonu',
+    'niue':'Alofi','wallis and futuna':'Mata-Utu',
+    'christmas island':'Flying Fish Cove','norfolk island':'Kingston',
+    'pitcairn':'Adamstown','akrotiri and dhekelia':'Limassol',
+    'heard island and mcdonald islands':'(uninhabited)',
+    'bouvet island':'(uninhabited)',
+    'french southern territories':'(uninhabited)',
+    'south georgia and the south sandwich islands':'King Edward Point',
+    'united states minor outlying islands':'(various)',
+    'british indian ocean territory':'Diego Garcia',
+    'antarctica':'McMurdo Station',
+    'cocos (keeling) islands':'West Island',
+    'saint helena, ascension and tristan da cunha':'Jamestown'
   };
   return m[c.toLowerCase().trim()] || c;
 }
@@ -899,7 +967,7 @@ function screenHTML(){
     ${tag('ti-receipt','Income declaration')}
     <h3 style="margin-bottom:.5rem;">Annual income declaration</h3>
     <p class="prose" style="margin-bottom:.5rem;">In ${S.countryOfOrigin||'your country'}, ${R1_CTX[S.society]}</p>
-    <p class="prose" style="margin-bottom:1rem;">It is the end of the fiscal year. You are required to submit a declaration of all income earned in the past twelve months. Based on your declaration, the tax authority will determine your final tax position. You have discretion over how much income to declare — the slider below represents your choice.</p>
+    <p class="prose" style="margin-bottom:1rem;">It is the end of the fiscal year. You are submitting your annual income declaration. You decide how much income to report to the tax authority.</p>
     ${taxBlock('r1','r1Pct','Submit declaration')}`;
 
   // DESC NORM ────────────────────────────────────────────────────────────────
